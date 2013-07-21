@@ -2,12 +2,18 @@
 
 OLDPATH=$PATH; PATH=".:..:$(dirname $0):$PATH"; . _spmon_lib; PATH=$OLDPATH
 
+COOKIE_FILE="cookies.txt"
+
 # Input: LOGIN, PASSWORD
 # Output: account balance
 
-request -O $TM/1.html 'https://login.skype.com/account/login-form?return_url=https://secure.skype.com/account/login'
-request -O $TM/2.html --post-data="username=$LOGIN&password=$PASSWORD" https://login.skype.com/account/login-form
+request -O $TM/1.html 'https://secure.skype.com/portal/overview'
+
+if grep -q -m 1 'Skype sign in' $TM/1.html 
+then
+	request -O $TM/1.html --post-data="username=$LOGIN&password=$PASSWORD" "https://login.skype.com/login?application=account&return_url=https%3A%2F%2Fsecure.skype.com%2Faccount%2Flogin"
+fi
 
 # <span id="balanceAmount"><span class='ccy'>&#36;</span>12.34</span>
 
-grab '<span id="balanceAmount">.*>([0-9.]*)<' 1 <$TM/2.html
+cat $TM/1.html | grep 'profile.CreditBalance' | sed -e 's/^.*=\([0-9]*\.[0-9]*\).*$/\1/'
