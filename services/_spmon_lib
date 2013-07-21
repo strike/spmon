@@ -7,7 +7,7 @@ exit_handler()
 {
 	local rc=$?
 	trap - EXIT
-	rm -f $TM/1.html $TM/2.html $TM/3.html "$COOKIE_FILE"
+	rm -f $TM/* 
 	rmdir $TM
 	exit $rc
 }
