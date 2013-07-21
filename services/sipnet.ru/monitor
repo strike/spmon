@@ -2,12 +2,18 @@
 
 OLDPATH=$PATH; PATH=".:..:$(dirname $0):$PATH"; . _spmon_lib; PATH=$OLDPATH
 
+COOKIE_FILE="cookies.txt"
+
 # Input: LOGIN, PASSWORD
 # Output: account balance
 
-request -O $TM/1.html http://www.sipnet.ru/
-request -O $TM/2.html --post-data="CabinetAction=login&Name=$LOGIN&Password=$PASSWORD" https://customer.sipnet.ru/cabinet/
+request -O $TM/1.html 'https://customer.sipnet.ru/cabinet/'
+
+if grep -q -m 1 Refresh $TM/1.html 
+then
+	request -O $TM/1.html --post-data="CabinetAction=login&Name=$LOGIN&Password=$PASSWORD" https://customer.sipnet.ru/cabinet/
+fi
 
 #         <div>12.34&nbsp;<span style="font-size: 80%">y.e.</span></div>
 
-sed -ne '/<span style="font-size: 80%">y.e.</ { s,^\s*<div>\([0-9.]*\)&nbsp;<span style="font-size: 80%">y.e.</span></div>\s*$,\1,; p }' <$TM/2.html
+sed -ne '/<span style="font-size: 80%">y.e.</ { s,^\s*<div>\([0-9.]*\)&nbsp;<span style="font-size: 80%">y.e.</span></div>\s*$,\1,; p }' < $TM/1.html
