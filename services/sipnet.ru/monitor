@@ -2,7 +2,7 @@
 
 OLDPATH=$PATH; PATH=".:..:$(dirname $0):$PATH"; . _spmon_lib; PATH=$OLDPATH
 
-COOKIE_FILE="cookies.txt"
+COOKIE_FILE=$LOGIN
 
 # Input: LOGIN, PASSWORD
 # Output: account balance
