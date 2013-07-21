@@ -1,0 +1,19 @@
+#!/bin/sh
+
+OLDPATH=$PATH; PATH=".:..:$(dirname $0):$PATH"; . _spmon_lib; PATH=$OLDPATH
+
+COOKIE_FILE=$LOGIN
+
+# Input: LOGIN, PASSWORD
+# Output: account balance
+
+request -O $TM/1.html 'https://my.onlime.ru/json/cabinet'
+
+if grep -q -m 1 error $TM/1.html 
+then
+	request -O $TM/1.html --post-data="login_credentials[login]=$LOGIN&login_credentials[password]=$PASSWORD" 'https://my.onlime.ru/session/login'
+	request -O $TM/1.html 'https://my.onlime.ru/json/cabinet'
+fi
+
+cat $TM/1.html | grep -o "balance\":[0-9]*\.[0-9]*" | sed s/[^0-9\.]//g
+
