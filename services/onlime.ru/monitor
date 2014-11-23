@@ -12,8 +12,11 @@ request -O $TM/1.html 'https://my.onlime.ru/json/cabinet'
 if grep -q -m 1 error $TM/1.html 
 then
 	request -O $TM/1.html --post-data="login_credentials[login]=$LOGIN&login_credentials[password]=$PASSWORD" 'https://my.onlime.ru/session/login'
-	request -O $TM/1.html 'https://my.onlime.ru/json/cabinet'
+	# some magic from onlime
+	# <script type="text/javascript">var wtf = '0123456789qwertyuiopasdfghjklzxc', account = 1234567;</script>
+	wtf=`cat $TM/1.html |  grep -oP "(?<=f\s=\s')[[:alnum:]]*(?=')"`
+	request -O $TM/1.html --header="X-Wtf:$wtf" 'https://my.onlime.ru/json/cabinet'
 fi
 
-cat $TM/1.html | grep -o "balance\":[0-9]*\.[0-9]*" | sed s/[^0-9\.]//g
+cat $TM/1.html | grep -oP '(?<=balance"\:)[[:digit:]]*\.[[:digit:]]*'
 
